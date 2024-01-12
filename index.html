@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+    <title>PA#3</title>
+    <style>
+        body {
+            background-color: #EEEEEE;
+        }
+    </style>
+
+    <script src="./Utils/trackball-rotator.js"></script>
+    <script src="./Utils/m4.js"></script>
+    <script src="./shader.gpu"></script>
+    <script src="./main.js"></script>
+
+</head>
+
+<body onload="init()">
+
+    <h2>Conical Surface with a Directrix Curve in the Form of Cartesian Folium</h2>
+    <div hidden>
+        <label for="t">t</label>
+        <input type="range" name="t" id="t" min="0.1" max="2" step="0.1" value="2" onchange="change()">
+        <label for="l">l</label>
+        <input type="range" name="l" id="l" min="0.1" max="2" step="0.1" value="2" onchange="change()">
+        <label for="b">b</label>
+        <input type="range" name="b" id="b" min="0.1" max="2" step="0.1" value="1" onchange="change()">
+        <label for="rate">Set refresh rate</label>
+        <input type="range" name="rate" id="rate" min="0.0" max="1" step="0.01" value="0.5">
+    </div>
+    <label for="color">Specify color of the figure</label>
+    <input type="color" name="color" id="color" value="#ff0000" onchange="draw()">
+    <label for="r">Cone's angle of the light</label>
+    <input type="range" name="r" id="r" min="1.25" max="1.5" step="0.0001" value="1.25" onchange="draw()">
+    <label for="f">Softness of the light</label>
+    <input type="range" name="f" id="f" min="0.0" max="0.1" step="0.001" value="0" onchange="draw()">
+
+
+
+    <div id="canvas-holder">
+        <canvas width="600" height="600" id="webglcanvas" style="background-color:red"></canvas>
+    </div>
+
+
+</body>
+
+</html>
