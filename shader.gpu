@@ -1,0 +1,107 @@
+
+
+// Vertex shader
+const vertexShaderSource = `
+attribute vec3 vertex;
+attribute vec3 normal;
+attribute vec2 texture;
+uniform mat4 ModelViewProjectionMatrix;
+varying vec3 vV;
+varying vec3 vN;
+varying vec2 vT;
+uniform vec2 uT;
+uniform float uA;
+
+mat4 translation(vec2 t) {
+    mat4 dst;
+
+    dst[0][0] = 1.0;
+    dst[0][ 1] = 0.0;
+    dst[0][ 2] = 0.0;
+    dst[0][ 3] = 0.0;
+    dst[1][ 0] = 0.0;
+    dst[1][ 1] = 1.0;
+    dst[1][ 2] = 0.0;
+    dst[1][ 3] = 0.0;
+    dst[2][ 0] = 0.0;
+    dst[2][ 1] = 0.0;
+    dst[2][ 2] = 1.0;
+    dst[2][ 3] = 0.0;
+    dst[3][ 0] = t.x;
+    dst[3][ 1] = t.y;
+    dst[3][ 2] = 0.0;
+    dst[3][ 3] = 1.0;
+
+    return dst;
+}
+
+mat4 rotation() {
+    mat4 dst;
+    float c = cos(uA);
+    float s = sin(uA);
+
+    dst[0][0] = c;
+    dst[0][ 1] = s;
+    dst[0][ 2] = 0.0;
+    dst[0][ 3] = 0.0;
+    dst[1][ 0] = -s;
+    dst[1][ 1] = c;
+    dst[1][ 2] = 0.0;
+    dst[1][ 3] = 0.0;
+    dst[2][ 0] = 0.0;
+    dst[2][ 1] = 0.0;
+    dst[2][ 2] = 1.0;
+    dst[2][ 3] = 0.0;
+    dst[3][ 0] = 0.0;
+    dst[3][ 1] = 0.0;
+    dst[3][ 2] = 0.0;
+    dst[3][ 3] = 1.0;
+
+    return dst;
+}
+
+void main() {
+    vV = vertex;
+    vN = normal;
+    vec4 vT1 = translation(-uT)*vec4(texture,0.,1.);
+    vec4 vT2 = rotation()*vT1;
+    vec4 vT3 = translation(uT)*vT2;
+    vT = vT3.st;
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex,1.0);
+}`;
+
+
+// Fragment shader
+const fragmentShaderSource = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+   precision highp float;
+#else
+   precision mediump float;
+#endif
+varying vec3 vV;
+varying vec3 vN;
+varying vec2 vT;
+uniform vec3 uP;
+uniform vec3 uD;
+uniform float uR;
+uniform float uF;
+uniform vec4 color;
+uniform sampler2D tmu;
+void main() {
+    vec3 toLight = normalize(uP-vV);
+    vec3 toView = normalize(-vV);
+    vec3 halfVector = normalize(toLight + toView);
+    vec3 N = normalize(vN);
+    float dotFromDirection = dot(toLight, 
+                               -uD);
+    float inLight = smoothstep(uR-uF,uR, dotFromDirection);
+    float light = inLight * dot(N, toLight);
+    float specular = inLight * pow(dot(N, halfVector), 100.0);
+    vec3 color3 = color.rgb*light+specular;
+    vec4 colorT = texture2D(tmu,vT);
+    gl_FragColor = vec4(color3,1.0);
+    gl_FragColor = colorT;
+    if(uF<0.0){
+        gl_FragColor = vec4(1.0);
+    }
+}`;
